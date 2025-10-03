@@ -1,30 +1,142 @@
+site:
+  name: "Casino Editorial CMS"
+
 media:
-  input: public
-  output: /
-content:
-  - name: posts
-    label: Posts
-    type: collection
-    path: src/content/blog
-    view:
-      fields: [ title, draft, date ]
+  # Where images/files are uploaded
+  folder: "src/assets/media"
+
+# Optional: separate logo folder if you want a cleaner library
+# You can still store everything under media if you prefer
+# media_folders:
+#   - id: "logos"
+#     label: "Casino Logos"
+#     folder: "src/assets/logos"
+
+collections:
+  # -----------------------------
+  # 1) CASINOS (atomic data)
+  # -----------------------------
+  - id: "casinos"
+    label: "Casinos"
+    folder: "src/content/casinos"
+    create: true
+    format: "frontmatter"
+    slug: "{{slug}}"
+    summary: "{{title}} — {{bonus}} — {{rating}}★"
     fields:
-      - { name: author, label: Author, type: string }
-      - { name: pubDatetime, label: Date, type: date }
-      - { name: modDatetime, label: Date, type: date }
-      - { name: title, label: Title, type: string, required: true }
-      - { name: ogImage, label: Title, type: string }
-      - { name: slug, label: Slug, type: string }
-      - { name: featured, label: Featured, type: boolean }
-      - { name: draft, label: Draft, type: boolean }
-      - { name: tags, label: Tags, type: string, list: true }
-      - { name: description, label: Description, type: string }
-      - { name: body, label: Body, type: rich-text }
-  - name: about
-    label: About page
-    type: file
-    path: src/pages/about.md
+      - { name: "title", label: "Casino Name", widget: "string" }
+      - { name: "slug", label: "Slug (used for links/IDs)", widget: "string", hint: "lowercase-dashes" }
+      - { name: "affiliate_url", label: "Play Now URL", widget: "string", hint: "https://..." }
+      - { name: "terms_url", label: "Terms/Bonus T&Cs URL", widget: "string", required: false }
+      - { name: "logo", label: "Logo", widget: "image" }
+
+      # Primary promo snapshot
+      - { name: "highlight", label: "Highlight / USP (short)", widget: "string", hint: "e.g., 'Crypto-exclusive bonuses'" }
+      - { name: "bonus", label: "Welcome Bonus (short)", widget: "string", hint: "e.g., '500% up to $5,000 (crypto only)'" }
+      - { name: "wagering", label: "Wagering Requirements", widget: "string", hint: "e.g., '30x bonus'" }
+      - { name: "payout_speed", label: "Typical Payout Speed", widget: "string", hint: "e.g., 'Instant–24 hours'" }
+
+      # Compliance / trust
+      - { name: "license", label: "License", widget: "string", hint: "e.g., 'Curaçao eGaming', 'Panama'" }
+      - { name: "rating", label: "Rating (0–5)", widget: "number", min: 0, max: 5, step: 0.5 }
+      - { name: "geos", label: "Allowed Regions/Notes", widget: "string", required: false }
+
+      # Game + platform snapshot
+      - { name: "games_count", label: "Number of Games", widget: "string", hint: "e.g., '1,000+'" }
+      - name: "software_providers"
+        label: "Software Providers"
+        widget: "list"
+        field: { name: "name", label: "Provider", widget: "string" }
+
+      # Payments & support
+      - name: "banking_methods"
+        label: "Banking Methods"
+        widget: "list"
+        field: { name: "method", label: "Method", widget: "string" }
+      - name: "supported_currencies"
+        label: "Supported Currencies"
+        widget: "list"
+        field: { name: "currency", label: "Currency", widget: "string" }
+      - { name: "crypto_supported", label: "Crypto Supported", widget: "boolean", default: true }
+      - name: "support_options"
+        label: "Customer Support Options"
+        widget: "list"
+        field: { name: "channel", label: "Channel", widget: "string", hint: "e.g., Live Chat / Email / Phone" }
+
+      # Editorial snippets to reuse anywhere
+      - name: "pros"
+        label: "Pros"
+        widget: "list"
+        field: { name: "item", label: "Pro", widget: "string" }
+      - name: "cons"
+        label: "Cons"
+        widget: "list"
+        field: { name: "item", label: "Con", widget: "string" }
+
+      # Optional assets
+      - name: "screenshots"
+        label: "Screenshots"
+        widget: "list"
+        field: { name: "image", label: "Image", widget: "image" }
+
+      # Sorting utility if you need stable ordering in generic lists
+      - { name: "weight", label: "Sort Weight (lower = earlier)", widget: "number", default: 100 }
+
+  # -----------------------------------------
+  # 2) LISTICLE ARTICLES (references casinos)
+  # -----------------------------------------
+  - id: "articles"
+    label: "Articles"
+    folder: "src/content/articles"
+    create: true
+    format: "frontmatter"
+    slug: "{{slug}}"
+    summary: "{{title}} — {{region}}"
     fields:
-      - { name: layout, type: string, hidden: true, default: "../layouts/AboutLayout.astro" }
-      - { name: title, label: Title, type: string }
-      - { name: body, label: Body, type: rich-text, options: { input: public/assets, output: /assets } }
+      # Page meta
+      - { name: "title", label: "H1 / Title", widget: "string", hint: "e.g., 'Best Real Money US Online Casinos 2025'" }
+      - { name: "slug", label: "Slug", widget: "string", hint: "lowercase-dashes" }
+      - { name: "region", label: "Region", widget: "string", default: "Unregulated USA online casino gambling market" }
+      - name: "secondary_keywords"
+        label: "Secondary Keywords"
+        widget: "list"
+        field: { name: "keyword", label: "Keyword", widget: "string" }
+
+      # SEO
+      - { name: "meta_title", label: "Meta Title", widget: "string" }
+      - { name: "meta_description", label: "Meta Description", widget: "text" }
+      - { name: "canonical_url", label: "Canonical URL", widget: "string", required: false }
+      - { name: "og_image", label: "OG Image", widget: "image", required: false }
+      - { name: "robots", label: "Robots", widget: "string", default: "index,follow,max-image-preview:large" }
+
+      # Intro
+      - { name: "intro_paragraph_1", label: "Intro Paragraph 1", widget: "markdown" }
+      - { name: "intro_paragraph_2", label: "Intro Paragraph 2", widget: "markdown", required: false }
+      - { name: "intro_paragraph_3", label: "Intro Paragraph 3", widget: "markdown", required: false }
+
+      # Explanation section (H2)
+      - { name: "explain_heading", label: "Explanation Heading (H2)", widget: "string", default: "Why These Online Casinos Made the List" }
+      - { name: "explain_paragraph_1", label: "Explanation Paragraph 1", widget: "markdown" }
+      - { name: "explain_paragraph_2", label: "Explanation Paragraph 2", widget: "markdown" }
+
+      # Top 10 Overview (ordered list text lines)
+      - name: "top10_overview"
+        label: "Top 10 Overview (ordered list lines)"
+        widget: "list"
+        field: { name: "line", label: "Line", widget: "string", hint: "e.g., 'Betwhale — Huge jackpot slots selection'" }
+
+      # Top 10 Table (relation + per-article overrides)
+      - name: "top10_table"
+        label: "Top 10 Casinos Table"
+        widget: "list"
+        fields:
+          - name: "casino"
+            label: "Casino"
+            widget: "relation"
+            collection: "casinos"
+            search_fields: ["title", "slug", "highlight", "bonus"]
+            display_fields: ["title"]
+            value_field: "slug"
+          - { name: "override_highlight", label: "Override Highlight (optional)", widget: "string", required: false }
+          - { name: "override_bonus", label: "Override Bonus (optional)", widget: "string", required: false }
+          - { name: "override_payout_spe
