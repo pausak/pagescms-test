@@ -1,5 +1,5 @@
 ---
-title: test
+title: Casino
 slug: test-casino
 software_providers:
   - adsf
