@@ -1,10 +1,6 @@
 site:
   name: "Casino Editorial CMS"
 
-media:
-  # Where images/files are uploaded
-  folder: "src/assets/media"
-
 # Optional: separate logo folder if you want a cleaner library
 # You can still store everything under media if you prefer
 # media_folders:
