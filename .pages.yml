@@ -1,5 +1,3 @@
-# .pages.yml — PagesCMS configuration for Casino Listicles + Reusable Casino Records
-
 site:
   name: "Casino Editorial CMS"
 
