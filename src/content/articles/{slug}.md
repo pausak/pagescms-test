@@ -1,5 +1,5 @@
 ---
-title: test
+title: Best Online Casinos
 slug: test
 region: Unregulated USA online casino gambling market
 robots: index,follow,max-image-preview:large
