@@ -1,138 +1,372 @@
+# .pages.yml — PagesCMS configuration for Casino Listicles + Reusable Casino Records
+
 site:
   name: "Casino Editorial CMS"
 
-# Optional: separate logo folder if you want a cleaner library
-# You can still store everything under media if you prefer
-# media_folders:
-#   - id: "logos"
-#     label: "Casino Logos"
-#     folder: "src/assets/logos"
+# Where media is stored in the repo and how it should be referenced in content
+media:
+  input: src/assets/media
+  output: /assets/media
 
-collections:
-  # -----------------------------
-  # 1) CASINOS (atomic data)
-  # -----------------------------
-  - id: "casinos"
-    label: "Casinos"
-    folder: "src/content/casinos"
-    create: true
-    format: "frontmatter"
-    slug: "{{slug}}"
-    summary: "{{title}} — {{bonus}} — {{rating}}★"
+# ------------------------------------
+# CONTENT TYPES
+# ------------------------------------
+content:
+  # ==========================
+  # 1) CASINOS (atomic records)
+  # ==========================
+  - name: casinos
+    label: Casinos
+    type: collection
+    path: src/content/casinos
+    # Save each casino as its own file using the slug
+    filename: "{slug}.md"
+    format: yaml-frontmatter
+    view:
+      primary: title
+      fields: [ title, rating, highlight, bonus, payout_speed ]
+      sort: [ title, rating ]
+      search: [ title, highlight, bonus, license ]
     fields:
-      - { name: "title", label: "Casino Name", widget: "string" }
-      - { name: "slug", label: "Slug (used for links/IDs)", widget: "string", hint: "lowercase-dashes" }
-      - { name: "affiliate_url", label: "Play Now URL", widget: "string", hint: "https://..." }
-      - { name: "terms_url", label: "Terms/Bonus T&Cs URL", widget: "string", required: false }
-      - { name: "logo", label: "Logo", widget: "image" }
+      - name: title
+        label: Casino Name
+        type: string
+        required: true
+      - name: slug
+        label: Slug
+        type: string
+        description: "lowercase-dashes; used for filename and routes"
+        required: true
+      - name: affiliate_url
+        label: Play Now URL
+        type: string
+      - name: terms_url
+        label: Terms & Bonus T&Cs URL
+        type: string
 
-      # Primary promo snapshot
-      - { name: "highlight", label: "Highlight / USP (short)", widget: "string", hint: "e.g., 'Crypto-exclusive bonuses'" }
-      - { name: "bonus", label: "Welcome Bonus (short)", widget: "string", hint: "e.g., '500% up to $5,000 (crypto only)'" }
-      - { name: "wagering", label: "Wagering Requirements", widget: "string", hint: "e.g., '30x bonus'" }
-      - { name: "payout_speed", label: "Typical Payout Speed", widget: "string", hint: "e.g., 'Instant–24 hours'" }
+      - name: logo
+        label: Logo
+        type: image
+
+      # Snapshot / promo
+      - name: highlight
+        label: Highlight / USP
+        type: string
+      - name: bonus
+        label: Welcome Bonus (short)
+        type: string
+      - name: wagering
+        label: Wagering Requirements
+        type: string
+      - name: payout_speed
+        label: Typical Payout Speed
+        type: string
 
       # Compliance / trust
-      - { name: "license", label: "License", widget: "string", hint: "e.g., 'Curaçao eGaming', 'Panama'" }
-      - { name: "rating", label: "Rating (0–5)", widget: "number", min: 0, max: 5, step: 0.5 }
-      - { name: "geos", label: "Allowed Regions/Notes", widget: "string", required: false }
+      - name: license
+        label: License
+        type: string
+      - name: rating
+        label: Rating (0–5, 0.5 steps)
+        type: number
+        options:
+          step: 0.5
+          min: 0
+          max: 5
+      - name: geos
+        label: Allowed Regions / Notes
+        type: string
 
-      # Game + platform snapshot
-      - { name: "games_count", label: "Number of Games", widget: "string", hint: "e.g., '1,000+'" }
-      - name: "software_providers"
-        label: "Software Providers"
-        widget: "list"
-        field: { name: "name", label: "Provider", widget: "string" }
+      # Game + platform
+      - name: games_count
+        label: Number of Games
+        type: string
+      - name: software_providers
+        label: Software Providers
+        type: string
+        list: true
 
-      # Payments & support
-      - name: "banking_methods"
-        label: "Banking Methods"
-        widget: "list"
-        field: { name: "method", label: "Method", widget: "string" }
-      - name: "supported_currencies"
-        label: "Supported Currencies"
-        widget: "list"
-        field: { name: "currency", label: "Currency", widget: "string" }
-      - { name: "crypto_supported", label: "Crypto Supported", widget: "boolean", default: true }
-      - name: "support_options"
-        label: "Customer Support Options"
-        widget: "list"
-        field: { name: "channel", label: "Channel", widget: "string", hint: "e.g., Live Chat / Email / Phone" }
+      # Banking & support
+      - name: banking_methods
+        label: Banking Methods
+        type: string
+        list: true
+      - name: supported_currencies
+        label: Supported Currencies
+        type: string
+        list: true
+      - name: crypto_supported
+        label: Crypto Supported
+        type: boolean
+        default: true
+      - name: support_options
+        label: Customer Support Options
+        type: string
+        list: true
 
-      # Editorial snippets to reuse anywhere
-      - name: "pros"
-        label: "Pros"
-        widget: "list"
-        field: { name: "item", label: "Pro", widget: "string" }
-      - name: "cons"
-        label: "Cons"
-        widget: "list"
-        field: { name: "item", label: "Con", widget: "string" }
+      # Editorial snippets
+      - name: pros
+        label: Pros
+        type: string
+        list: true
+      - name: cons
+        label: Cons
+        type: string
+        list: true
 
-      # Optional assets
-      - name: "screenshots"
-        label: "Screenshots"
-        widget: "list"
-        field: { name: "image", label: "Image", widget: "image" }
+      # Optional screenshots
+      - name: screenshots
+        label: Screenshots
+        type: image
+        list: true
 
-      # Sorting utility if you need stable ordering in generic lists
-      - { name: "weight", label: "Sort Weight (lower = earlier)", widget: "number", default: 100 }
+      # Sorting helper if you render generic lists
+      - name: weight
+        label: Sort Weight (lower = earlier)
+        type: number
+        default: 100
 
-  # -----------------------------------------
-  # 2) LISTICLE ARTICLES (references casinos)
-  # -----------------------------------------
-  - id: "articles"
-    label: "Articles"
-    folder: "src/content/articles"
-    create: true
-    format: "frontmatter"
-    slug: "{{slug}}"
-    summary: "{{title}} — {{region}}"
+  # ==============================================
+  # 2) LISTICLE ARTICLES (reference casinos by ID)
+  # ==============================================
+  - name: articles
+    label: Articles
+    type: collection
+    path: src/content/articles
+    filename: "{slug}.md"
+    format: yaml-frontmatter
+    view:
+      primary: title
+      fields: [ title, region, date, draft ]
+      sort: [ date, title ]
+      search: [ title, region, meta_title, meta_description ]
     fields:
       # Page meta
-      - { name: "title", label: "H1 / Title", widget: "string", hint: "e.g., 'Best Real Money US Online Casinos 2025'" }
-      - { name: "slug", label: "Slug", widget: "string", hint: "lowercase-dashes" }
-      - { name: "region", label: "Region", widget: "string", default: "Unregulated USA online casino gambling market" }
-      - name: "secondary_keywords"
-        label: "Secondary Keywords"
-        widget: "list"
-        field: { name: "keyword", label: "Keyword", widget: "string" }
+      - name: title
+        label: H1 / Title
+        type: string
+        required: true
+      - name: slug
+        label: Slug
+        type: string
+        required: true
+      - name: region
+        label: Region
+        type: string
+        default: "Unregulated USA online casino gambling market"
 
       # SEO
-      - { name: "meta_title", label: "Meta Title", widget: "string" }
-      - { name: "meta_description", label: "Meta Description", widget: "text" }
-      - { name: "canonical_url", label: "Canonical URL", widget: "string", required: false }
-      - { name: "og_image", label: "OG Image", widget: "image", required: false }
-      - { name: "robots", label: "Robots", widget: "string", default: "index,follow,max-image-preview:large" }
+      - name: meta_title
+        label: Meta Title
+        type: string
+      - name: meta_description
+        label: Meta Description
+        type: text
+      - name: canonical_url
+        label: Canonical URL
+        type: string
+      - name: og_image
+        label: OG Image
+        type: image
+      - name: robots
+        label: Robots
+        type: string
+        default: "index,follow,max-image-preview:large"
 
-      # Intro
-      - { name: "intro_paragraph_1", label: "Intro Paragraph 1", widget: "markdown" }
-      - { name: "intro_paragraph_2", label: "Intro Paragraph 2", widget: "markdown", required: false }
-      - { name: "intro_paragraph_3", label: "Intro Paragraph 3", widget: "markdown", required: false }
+      # Intro (rich markdown)
+      - name: intro_paragraphs
+        label: Introduction
+        type: rich-text
+        list:
+          min: 1
+        description: "Add 2–3 paragraphs; markdown supported."
 
       # Explanation section (H2)
-      - { name: "explain_heading", label: "Explanation Heading (H2)", widget: "string", default: "Why These Online Casinos Made the List" }
-      - { name: "explain_paragraph_1", label: "Explanation Paragraph 1", widget: "markdown" }
-      - { name: "explain_paragraph_2", label: "Explanation Paragraph 2", widget: "markdown" }
+      - name: explain_heading
+        label: Explanation Heading (H2)
+        type: string
+        default: "Why These Online Casinos Made the List"
+      - name: explain_paragraphs
+        label: Explanation Paragraphs
+        type: rich-text
+        list:
+          min: 2
+          max: 3
 
-      # Top 10 Overview (ordered list text lines)
-      - name: "top10_overview"
-        label: "Top 10 Overview (ordered list lines)"
-        widget: "list"
-        field: { name: "line", label: "Line", widget: "string", hint: "e.g., 'Betwhale — Huge jackpot slots selection'" }
+      # Top 10 overview (ordered list lines)
+      - name: top10_overview
+        label: Top 10 Overview (ordered list text)
+        type: string
+        list: true
+        description: "e.g., 'Betwhale — Huge jackpot slots selection'"
 
-      # Top 10 Table (relation + per-article overrides)
-      - name: "top10_table"
-        label: "Top 10 Casinos Table"
-        widget: "list"
+      # Top 10 Table (reference + per-article overrides)
+      - name: top10_table
+        label: Top 10 Casinos Table
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{fields.casino} — {fields.override_highlight}"
         fields:
-          - name: "casino"
-            label: "Casino"
-            widget: "relation"
-            collection: "casinos"
-            search_fields: ["title", "slug", "highlight", "bonus"]
-            display_fields: ["title"]
-            value_field: "slug"
-          - { name: "override_highlight", label: "Override Highlight (optional)", widget: "string", required: false }
-          - { name: "override_bonus", label: "Override Bonus (optional)", widget: "string", required: false }
-          - { name: "override_payout_spe
+          - name: casino
+            label: Casino
+            type: reference
+            options:
+              collection: casinos
+              search: "title,highlight,bonus,license"
+              label: "{title} — {highlight}"
+              value: "{slug}"
+              image: "{logo}"
+          - name: override_highlight
+            label: Override Highlight (optional)
+            type: string
+          - name: override_bonus
+            label: Override Bonus (optional)
+            type: string
+          - name: override_payout_speed
+            label: Override Payout (optional)
+            type: string
+          - name: override_rating
+            label: Override Rating (0–5)
+            type: number
+            options:
+              step: 0.5
+              min: 0
+              max: 5
+          - name: cta_label
+            label: CTA Label
+            type: string
+            default: "Play Now"
+          - name: cta_url
+            label: CTA URL (defaults to casino.affiliate_url if empty)
+            type: string
+
+      # Individual H3 Reviews (ordered, each references a casino)
+      - name: reviews
+        label: Individual Casino Reviews (H3 blocks)
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{fields.casino} — {fields.review_heading_suffix}"
+        fields:
+          - name: casino
+            label: Casino
+            type: reference
+            options:
+              collection: casinos
+              search: "title,highlight,bonus"
+              label: "{title}"
+              value: "{slug}"
+              image: "{logo}"
+          - name: review_heading_suffix
+            label: Heading Suffix (e.g., '– Crypto-exclusive bonuses')
+            type: string
+          - name: screenshot
+            label: Screenshot
+            type: image
+
+          # Per-article overrides for Key Features (fallback to casino if empty)
+          - name: override_bonus
+            label: Override Bonus
+            type: string
+          - name: override_wagering
+            label: Override Wagering
+            type: string
+          - name: override_license
+            label: Override License
+            type: string
+          - name: override_games_count
+            label: Override Number of Games
+            type: string
+          - name: override_support_options
+            label: Override Support Options
+            type: string
+            list: true
+
+          # Review body (3–4 paragraphs)
+          - name: review_body
+            label: Review Body (3–4 paras; markdown)
+            type: rich-text
+            list:
+              min: 1
+
+          # Pros/Cons (use casino defaults if left empty)
+          - name: pros
+            label: Pros (override)
+            type: string
+            list: true
+          - name: cons
+            label: Cons (override)
+            type: string
+            list: true
+
+      # Extended H3 sections (10–20)
+      - name: extended_sections
+        label: Extended Information Sections (H3)
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{fields.heading}"
+        fields:
+          - name: heading
+            label: H3 Heading
+            type: string
+          - name: content
+            label: Content (≥300 words; markdown)
+            type: rich-text
+
+      # Conclusion
+      - name: conclusion
+        label: Conclusion (2–3 paragraphs + CTA)
+        type: rich-text
+        list: true
+      - name: cta_text
+        label: Call To Action
+        type: string
+        default: "Choose your favourite and play responsibly."
+
+      # Publish controls
+      - name: date
+        label: Publish Date
+        type: date
+      - name: updated
+        label: Last Updated
+        type: date
+      - name: draft
+        label: Draft
+        type: boolean
+        default: false
+
+# ------------------------------------
+# OPTIONAL: reusable components
+# (You can remove this block if unused)
+# ------------------------------------
+components:
+  casinoKeyFeatures:
+    label: Casino Key Features
+    type: object
+    fields:
+      - name: bonus
+        label: Welcome Bonus
+        type: string
+      - name: wagering
+        label: Wagering Requirements
+        type: string
+      - name: license
+        label: License
+        type: string
+      - name: games_count
+        label: Number of Games
+        type: string
+      - name: support_options
+        label: Support Options
+        type: string
+        list: true
+
+# Optional global settings (merge prevents wiping unexposed frontmatter fields)
+settings:
+  content:
+    merge: true
